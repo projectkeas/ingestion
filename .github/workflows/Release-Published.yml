@@ -1,0 +1,42 @@
+name: '[Release] On Publish'
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      OUTPUT_DIRECTORY: ./out
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          submodules: 'true'
+      
+      - name: Setup Supplychain Security
+        uses: projectkeas/.engineering/.github/actions/setup-supplychain-security@main
+        with:
+          cosignPrivateKey: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      
+      - name: Build & Verify
+        uses: projectkeas/.engineering/.github/actions/go-build@main
+        with:
+          appName: appName
+          cosignPrivateKeyPassword: ${{ secrets.COSIGN_PASSWORD }}
+          cosignPublicKey: ${{ secrets.COSIGN_PUBLIC_KEY }}
+          outputDirectory: ${{ env.OUTPUT_DIRECTORY }}
+      
+      - name: Build Docker Image
+        uses: projectkeas/.engineering/.github/actions/docker-build@main
+        with:
+          context: ${{ env.OUTPUT_DIRECTORY }}
+          cosignPrivateKeyPassword: ${{ secrets.COSIGN_PASSWORD }}
+          cosignPublicKey: ${{ secrets.COSIGN_PUBLIC_KEY }}
+          imageName: ghcr.io/projectkeas/appName
+          pushImagesOnComplete: 'true'
+
+      - name: Publish Release Assets
+        uses: projectkeas/.engineering/.github/actions/publish-release-assets@main
