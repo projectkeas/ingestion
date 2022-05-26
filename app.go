@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/projectkeas/sdks-service/configuration"
 	"github.com/projectkeas/sdks-service/server"
+
+	"github.com/projectkeas/ingestion/handlers/ingestionHandler"
 )
 
 func main() {
@@ -17,10 +17,7 @@ func main() {
 	//app.WithSecret("secret-1")
 
 	app.ConfigureHandlers(func(f *fiber.App, configurationAccessor func() *configuration.ConfigurationRoot) {
-		f.Get("/", func(c *fiber.Ctx) error {
-			value := configurationAccessor().GetStringValueOrDefault("log.level", "not set")
-			return c.SendString(fmt.Sprintf("Hello, World 👋! Log Level is: %s", value))
-		})
+		f.Post("/ingest", ingestionHandler.New(configurationAccessor))
 	})
 
 	app.Run()
