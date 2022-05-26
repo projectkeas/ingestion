@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	app := server.New("appName")
+	app := server.New("ingestion")
 
 	app.WithEnvironmentVariableConfiguration("KEAS_")
 
-	app.WithConfigMap("config-1")
-	app.WithSecret("secret-1")
+	//app.WithConfigMap("config-1")
+	//app.WithSecret("secret-1")
 
 	app.ConfigureHandlers(func(f *fiber.App, configurationAccessor func() *configuration.ConfigurationRoot) {
 		f.Get("/", func(c *fiber.Ctx) error {

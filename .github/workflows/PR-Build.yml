@@ -20,11 +20,11 @@ jobs:
       - name: Build & Verify
         uses: projectkeas/.engineering/.github/actions/go-build@main
         with:
-          appName: appName
+          appName: ingestion
           outputDirectory: ${{ env.OUTPUT_DIRECTORY }}
       
       - name: Build Docker Image
         uses: projectkeas/.engineering/.github/actions/docker-build@main
         with:
           context: ${{ env.OUTPUT_DIRECTORY }}
-          imageName: ghcr.io/projectkeas/appName
+          imageName: ghcr.io/projectkeas/ingestion
