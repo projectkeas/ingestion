@@ -4,7 +4,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/projectkeas/ingestion/sdk"
-	"github.com/projectkeas/sdks-service/configuration"
+	"github.com/projectkeas/ingestion/services/ingestionPolicies"
+	log "github.com/projectkeas/sdks-service/logger"
+	"github.com/projectkeas/sdks-service/server"
+	"go.uber.org/zap"
 )
 
 type ValidationError struct {
@@ -19,7 +22,7 @@ type ErrorResult struct {
 
 var Validator = validator.New()
 
-func New(configuration func() *configuration.ConfigurationRoot) func(context *fiber.Ctx) error {
+func New(server *server.Server) func(context *fiber.Ctx) error {
 	return func(context *fiber.Ctx) error {
 		context.Accepts("application/json")
 		errorResult := &ErrorResult{
@@ -34,22 +37,31 @@ func New(configuration func() *configuration.ConfigurationRoot) func(context *fi
 			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
 		}
 
-		// Validate the body according to our rules
-		err = Validator.Struct(body)
+		service, err := server.GetService(ingestionPolicies.SERVICE_NAME)
 		if err != nil {
-			for _, err := range err.(validator.ValidationErrors) {
-				errorResult.ValidationErrors = append(errorResult.ValidationErrors, ValidationError{
-					Field: err.Field(),
-					Error: err.Error(),
-				})
-			}
+			log.Logger.Error("Unable to get the service from the request context", zap.Error(err))
 			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
 		}
 
-		// TODO :: Pass through OPA to see whether or not we should handle this request
+		// TODO :: validation of request payload
 
-		// TODO :: Send through to our NATS cluster for further processing
-		context.Status(204)
-		return nil
+		ingestionPolicyEngine := service.(ingestionPolicies.IngestionPolicyService)
+		ingestionDecision, err := ingestionPolicyEngine.GetDecision(*body)
+
+		if err != nil {
+			log.Logger.Error("Unable to make ingestion decision", zap.Error(err))
+			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+		}
+
+		if ingestionDecision.Allow {
+			// TODO :: Send through to our NATS cluster for further processing
+			context.Status(204)
+			return nil
+		}
+
+		context.Response().Header.Add("X-Rejected-Ingestion", "true")
+		return context.Status(400).JSON(map[string]string{
+			"reason": "prevented by ingestion policy",
+		})
 	}
 }
