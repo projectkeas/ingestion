@@ -17,6 +17,9 @@ jobs:
           fetch-depth: 1
           submodules: 'true'
       
+      - name: Setup Supplychain Security
+        uses: projectkeas/.engineering/.github/actions/setup-supplychain-security@main
+
       - name: Build & Verify
         uses: projectkeas/.engineering/.github/actions/go-build@main
         with:
