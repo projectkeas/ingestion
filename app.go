@@ -5,6 +5,7 @@ import (
 	"github.com/projectkeas/sdks-service/server"
 
 	"github.com/projectkeas/ingestion/handlers/ingestionHandler"
+	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
 )
 
@@ -23,6 +24,7 @@ func main() {
 	server := app.Build()
 
 	server.RegisterService(ingestionPolicies.SERVICE_NAME, ingestionPolicies.New())
+	server.RegisterService(eventTypes.SERVICE_NAME, eventTypes.New())
 
 	server.Run()
 }

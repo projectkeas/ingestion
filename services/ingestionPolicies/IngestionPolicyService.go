@@ -116,9 +116,7 @@ func addOrUpdateIngestionPolicy(opa *opa.OPAService, ingestionPolicy *types.Inge
 	allow := false
 	ttl := -1
 
-	if ingestionPolicy.Spec.Defaults.Allow == true {
-		allow = true
-	}
+	allow = ingestionPolicy.Spec.Defaults.Allow
 
 	if ingestionPolicy.Spec.Defaults.TTL != 0 {
 		ttl = ingestionPolicy.Spec.Defaults.TTL

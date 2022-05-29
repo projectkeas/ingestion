@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/projectkeas/ingestion/sdk"
+	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
 	log "github.com/projectkeas/sdks-service/logger"
 	"github.com/projectkeas/sdks-service/server"
@@ -29,39 +30,50 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 			Message: "An error occurred whilst processing your request",
 		}
 
-		// Ensure that we can parse the body
-		body := new(sdk.EventEnvelope)
-		err := context.BodyParser(&body)
+		// Ensure that we can parse the event
+		event := new(sdk.EventEnvelope)
+		err := context.BodyParser(&event)
 		if err != nil {
 			errorResult.Message = err.Error()
 			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
 		}
 
-		service, err := server.GetService(ingestionPolicies.SERVICE_NAME)
+		// Validate that the request matches the defined schema
+		eventTypesService, err := server.GetService(eventTypes.SERVICE_NAME)
 		if err != nil {
-			log.Logger.Error("Unable to get the service from the request context", zap.Error(err))
+			log.Logger.Error("Unable to get the eventTypes service from the request context", zap.Error(err))
+			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
+		}
+		eventTypesEngine := eventTypesService.(eventTypes.EventTypeService)
+		if !eventTypesEngine.Validate(*event) {
+			errorResult.Message = "The event supplied does not match any known schema"
 			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
 		}
 
-		// TODO :: validation of request payload
-
-		ingestionPolicyEngine := service.(ingestionPolicies.IngestionPolicyService)
-		ingestionDecision, err := ingestionPolicyEngine.GetDecision(*body)
-
+		// Ensure that we are allowed to ingest the event
+		ingestionService, err := server.GetService(ingestionPolicies.SERVICE_NAME)
+		if err != nil {
+			log.Logger.Error("Unable to get the ingestion service from the request context", zap.Error(err))
+			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
+		}
+		ingestionPolicyEngine := ingestionService.(ingestionPolicies.IngestionPolicyService)
+		ingestionDecision, err := ingestionPolicyEngine.GetDecision(*event)
 		if err != nil {
 			log.Logger.Error("Unable to make ingestion decision", zap.Error(err))
-			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+			errorResult.Message = "Unable to make ingestion decision"
+			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
 		}
 
+		// Forward the event through to the NATS cluster
 		if ingestionDecision.Allow {
-			// TODO :: Send through to our NATS cluster for further processing
-			context.Status(204)
+			// TODO :: implement
+			context.Status(fiber.StatusNoContent)
 			return nil
 		}
 
 		context.Response().Header.Add("X-Rejected-Ingestion", "true")
-		return context.Status(400).JSON(map[string]string{
-			"reason": "prevented by ingestion policy",
+		return context.Status(fiber.StatusBadRequest).JSON(map[string]string{
+			"reason": "The event was rejected by an ingestion policy",
 		})
 	}
 }
