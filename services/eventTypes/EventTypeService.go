@@ -8,6 +8,7 @@ import (
 	"github.com/projectkeas/ingestion/sdk"
 	"github.com/projectkeas/ingestion/services"
 	log "github.com/projectkeas/sdks-service/logger"
+	jsonSchema "github.com/santhosh-tekuri/jsonschema/v5"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
@@ -18,14 +19,14 @@ const (
 )
 
 type EventTypeService interface {
-	Validate(event sdk.EventEnvelope) bool
+	Validate(event sdk.EventEnvelope) error
 }
 
 type eventTypesExecutionService struct {
 	eventTypes map[string]validatableEventType
 }
 
-func (service eventTypesExecutionService) Validate(event sdk.EventEnvelope) bool {
+func (service eventTypesExecutionService) Validate(event sdk.EventEnvelope) error {
 
 	key := formatStorageKey(event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.EventVersion)
 	vt, found := service.eventTypes[key]
@@ -34,7 +35,7 @@ func (service eventTypesExecutionService) Validate(event sdk.EventEnvelope) bool
 		return vt.Validate(event)
 	}
 
-	return false
+	return fmt.Errorf("no matching schema found for: %s|%s|%s", event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.Source)
 }
 
 func New() EventTypeService {
@@ -96,11 +97,22 @@ func addOrUpdateEventType(service *eventTypesExecutionService, eventType *types.
 		service.eventTypes = map[string]validatableEventType{}
 	}
 
+	schema, err := jsonSchema.CompileString("schema.json", eventType.Spec.Schema)
+	if err != nil {
+		log.Logger.Error("Cannot parse json schema. Not adding schema to collection", zap.Any("eventType", map[string]string{
+			"name":      eventType.Name,
+			"namespace": eventType.Namespace,
+			"eventType": eventType.Spec.EventType,
+			"version":   eventType.Spec.Version,
+		}), zap.Error(err))
+		return
+	}
+
 	if len(eventType.Spec.SubTypes) > 0 {
 		for _, subType := range eventType.Spec.SubTypes {
 			key := formatStorageKey(eventType.Spec.EventType, subType, eventType.Spec.Version)
 			service.eventTypes[key] = validatableEventType{
-				Schema:   eventType.Spec.Schema,
+				Schema:   *schema,
 				SubTypes: eventType.Spec.SubTypes,
 				Sources:  eventType.Spec.Sources,
 			}
@@ -108,7 +120,7 @@ func addOrUpdateEventType(service *eventTypesExecutionService, eventType *types.
 	} else {
 		key := formatStorageKey(eventType.Spec.EventType, "*", eventType.Spec.Version)
 		service.eventTypes[key] = validatableEventType{
-			Schema:   eventType.Spec.Schema,
+			Schema:   *schema,
 			SubTypes: eventType.Spec.SubTypes,
 			Sources:  eventType.Spec.Sources,
 		}

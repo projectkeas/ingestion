@@ -1,30 +1,33 @@
 package eventTypes
 
 import (
+	"fmt"
+
 	"github.com/projectkeas/ingestion/sdk"
+	jsonSchema "github.com/santhosh-tekuri/jsonschema/v5"
 )
 
 type validatableEventType struct {
 	SubTypes []string
 	Sources  []string
-	Schema   string
+	Schema   jsonSchema.Schema
 }
 
-func (vt validatableEventType) Validate(event sdk.EventEnvelope) bool {
+func (vt validatableEventType) Validate(event sdk.EventEnvelope) error {
 
 	if len(vt.SubTypes) > 0 {
 		if !contains(vt.SubTypes, event.Metadata.EventSubType) {
-			return false
+			return fmt.Errorf("'%s' is not registered for subType '%s'", event.Metadata.EventType, event.Metadata.EventSubType)
 		}
 	}
 
 	if len(vt.Sources) > 0 {
 		if !contains(vt.Sources, event.Metadata.Source) {
-			return false
+			return fmt.Errorf("'%s' is not registered for source '%s'", event.Metadata.EventType, event.Metadata.Source)
 		}
 	}
 
-	return true
+	return vt.Schema.Validate(event.Payload)
 }
 
 func contains(arr []string, item string) bool {
