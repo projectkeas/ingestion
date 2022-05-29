@@ -802,6 +802,8 @@ github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66 h1:gahG81ztKpmu8A
 github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66/go.mod h1:m9w7ro3oG0m4FwI6eg3ZVEopf5Np/LsP/DBQRXYyhbI=
 github.com/projectkeas/crds v0.0.0-20220529173349-5b35652638de h1:gGTjQW7PktgTDExL0vgJURsnJRJClDWVG811lXiEGb4=
 github.com/projectkeas/crds v0.0.0-20220529173349-5b35652638de/go.mod h1:m9w7ro3oG0m4FwI6eg3ZVEopf5Np/LsP/DBQRXYyhbI=
+github.com/projectkeas/crds v0.0.0-20220529174911-53fa80e2428d h1:FfYUem468X4VYLo5FiVlQHcnL7Wf5IxK1MgPxKgbmIs=
+github.com/projectkeas/crds v0.0.0-20220529174911-53fa80e2428d/go.mod h1:m9w7ro3oG0m4FwI6eg3ZVEopf5Np/LsP/DBQRXYyhbI=
 github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1 h1:kqj66Ejw37AGCpQ272KyEi3swdZTVaQ+zMADGW5jg4M=
 github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1/go.mod h1:CqNfUmk92bjd0NViIWaTG+pjwGEhtVhObiJzz8Iz5BM=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
