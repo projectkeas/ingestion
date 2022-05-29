@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66
+	github.com/projectkeas/crds v0.0.0-20220529173349-5b35652638de
 	github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0

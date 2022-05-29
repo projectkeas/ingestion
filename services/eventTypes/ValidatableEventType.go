@@ -16,14 +16,14 @@ type validatableEventType struct {
 func (vt validatableEventType) Validate(event sdk.EventEnvelope) error {
 
 	if len(vt.SubTypes) > 0 {
-		if !contains(vt.SubTypes, event.Metadata.EventSubType) {
-			return fmt.Errorf("'%s' is not registered for subType '%s'", event.Metadata.EventType, event.Metadata.EventSubType)
+		if !contains(vt.SubTypes, event.Metadata.SubType) {
+			return fmt.Errorf("'%s' is not registered for subType '%s'", event.Metadata.Type, event.Metadata.SubType)
 		}
 	}
 
 	if len(vt.Sources) > 0 {
 		if !contains(vt.Sources, event.Metadata.Source) {
-			return fmt.Errorf("'%s' is not registered for source '%s'", event.Metadata.EventType, event.Metadata.Source)
+			return fmt.Errorf("'%s' is not registered for source '%s'", event.Metadata.Type, event.Metadata.Source)
 		}
 	}
 

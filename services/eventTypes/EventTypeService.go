@@ -28,14 +28,14 @@ type eventTypesExecutionService struct {
 
 func (service eventTypesExecutionService) Validate(event sdk.EventEnvelope) error {
 
-	key := formatStorageKey(event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.Version)
+	key := formatStorageKey(event.Metadata.Type, event.Metadata.SubType, event.Metadata.Version)
 	vt, found := service.eventTypes[key]
 
 	if found {
 		return vt.Validate(event)
 	}
 
-	return fmt.Errorf("no matching schema found for: %s|%s|%s", event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.Source)
+	return fmt.Errorf("no matching schema found for: %s|%s|%s", event.Metadata.Type, event.Metadata.SubType, event.Metadata.Source)
 }
 
 func New() EventTypeService {
@@ -152,6 +152,6 @@ func onDeletedEventType(service *eventTypesExecutionService) func(eventTypeInter
 	}
 }
 
-func formatStorageKey(eventType string, eventSubType string, eventVersion string) string {
-	return fmt.Sprintf("%s|%s|%s", eventType, eventSubType, eventVersion)
+func formatStorageKey(eventType string, SubType string, eventVersion string) string {
+	return fmt.Sprintf("%s|%s|%s", eventType, SubType, eventVersion)
 }

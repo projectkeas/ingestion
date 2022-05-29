@@ -1,19 +1,31 @@
 # Ingestion
 
-...
+The Keas ingestion API validates incoming event data against known schemas before applying one or more ingestion policies against the request. Consumers are free to define one of two [CRDs](github.com/projectkeas/crds):
 
-## Ingest Endpoint
+- [EventType](https://github.com/projectkeas/crds/blob/main/manifests/keas.io_eventtypes.yaml): A versioned event schema. An EventType must be added for the system to accept the request.
+- [IngestionPolicy](https://github.com/projectkeas/crds/blob/main/manifests/keas.io_ingestionpolicies.yaml): A policy to determine whether certain events should be stored in the system and for how long.
 
-Payload format:
+The ingestion API watches both resource types for any changes and reflects them immediately in the API. Every 2 minutes the system will perform a cache sync in the case of a network partition and ensure the consistency of all CRDs registered.
+
+## Endpoints
+
+|Url|Methods|Description|Payload|
+|---|---|---|---|
+|`/ingest`|POST|Captures a given event into the system (assuming it passes validation and ingestion policies)|[link](#ingest-payload)|
+|`/_system/health`|GET|The liveness health check endpoint||
+|`/_system/health/ready`|GET|The readiness health check endpoint||
+
+### Ingest Payload
 
 ```json
 {
     "metadata": {
-        "source": "Gitlab",                     // (Required) the source of the event
-        "eventType": "PullRequest",             // (Required) the type of the event received
-        "eventTime": "2022-01-01T13:33.00Z",    // (optional) the time the event occurred at the source. ISO-8601 formatted string, defaults to utc now
-        "eventSubType": "Merged",               // (optional) provides further classification of the eventType field
-        "eventUUID": "1234567567643",           // (optional) unique to the source
+        "version": "1.0.0",                     // (Required) The version of the schema. Format: <major>.<minor>.<version>
+        "source": "Gitlab",                     // (Required) The source of the event. Format: ^[A-z\-]{3,63}$
+        "type": "PullRequest",                  // (Required) The type of the event received. Format: ^[A-z\-]{3,63}$
+        "subType": "Merged",                    // (Optional) Provides further classification of the eventType field. Format: 
+        "eventTime": "2022-01-01T13:33.00Z",    // (Optional) The time the event occurred at the source. ISO-8601 formatted string, defaults to utc now
+        "eventUUID": "1234567567643",           // (Optional) A unique identifier of the event, usually coming from the source system
     },
     "payload": {
         // (required) variable structure based on source
@@ -21,60 +33,22 @@ Payload format:
 }
 ```
 
-## EventTypes
+Note: Any other metadata fields than those listed above will be rejected by the system
 
-- Alert
-  - Triggered
-  - Silenced
-  - Resolved
-- Artifact
-  - Created
-  - Deleted
-  - Updated
-- Commit
-  - Created
-- Dependency
-  - Created
-  - Deleted
-  - Updated
-- Deployment
-  - Created
-  - Deleted
-  - Updated
-- Incident
-  - Created
-  - Deleted
-  - Updated
-- PullRequest
-  - Closed
-  - Created
-  - Merged
-  - Updated
-- PullRequestComment
-  - Created
-  - Deleted
-  - Updated
-- Release
-  - Created
-  - Deleted
-  - Updated
-- Repository
-  - Created
-  - Deleted
-  - Updated
-- SecurityAdvisory
-  - Created
-  - Deleted
-  - Updated
-- Service
-  - Created
-  - Deleted
-  - Updated
-- WorkItem
-  - Created
-  - Deleted
-  - Updated
-- WorkItemComment
-  - Created
-  - Deleted
-  - Updated
+## Error Response
+
+During the course of development, you may receive one or more of the reason codes listed below:
+
+|Reason|Description|Fix|
+|---|---|---|
+|request-body|The system was unable to parse|Ensure that the body is a valid JSON object|
+|metadata-missing|The system could not get the property `metadata` from the request|Ensure that the field is present and lowercased|
+|payload-missing|The system could not get the property `payload` from the request|Ensure that the field is present and lowercased|
+|metadata|The supplied metadata did not match the schema `metadata`|Ensure that the `metadata` section is formatted according to [this schema](https://github.com/projectkeas/ingestion/blob/e1c07265b7799cebf47f5c296f4f149b6b5372fa/handlers/ingestionHandler/handler.go#L20-L54)|
+|metadata-failure|There was a server side error deserializing the `metadata` section|N/A|
+|event-type|There was a server side error getting the event validation service|N/A|
+|event-validation|The system failed to successfully validate the request payload against the one stored in the system|Ensure that the event sent to the system matches the schema registered|
+|event-validation-failure|There was a server side error |N/A|
+|ingestion-service|There was a server side error getting the ingestion policy service|N/A|
+|ingestion-service-failure|There was a server side error whilst processing one or more ingestion policies|Ensure all ingestion policies registered are valid [Rego policies](https://www.openpolicyagent.org/docs/latest/policy-language/)|
+|ingestion-service-rejected|One or more policies evaluated the ingestion policy as disallowing the request|Adjust the ingestion policy if deemed that the policy is incorrect otherwise - N/A|
