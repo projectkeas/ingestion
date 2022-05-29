@@ -690,6 +690,8 @@ github.com/mitchellh/iochan v1.0.0/go.mod h1:JwYml1nuB7xOzsp52dPpHFffvOCDupsG0Qu
 github.com/mitchellh/mapstructure v0.0.0-20160808181253-ca63d7c062ee/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/mapstructure v1.4.1/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
+github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
+github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/mitchellh/osext v0.0.0-20151018003038-5e2d6d41470f/go.mod h1:OkQIRizQZAeMln+1tSwduZz7+Af5oFlKirV/MSYes2A=
 github.com/moby/locker v1.0.1/go.mod h1:S7SDdo5zpBK84bzzVlKr2V0hz+7x9hWbYC/kq7oQppc=
 github.com/moby/spdystream v0.2.0/go.mod h1:f7i0iNDQJ059oMTcWxx8MA/zKFIuD/lY+0GqbN2Wy8c=
@@ -798,10 +800,6 @@ github.com/pquerna/cachecontrol v0.0.0-20171018203845-0dec1b30a021/go.mod h1:prY
 github.com/prashantv/gostub v1.1.0/go.mod h1:A5zLQHz7ieHGG7is6LLXLz7I8+3LZzsrV0P1IAHhP5U=
 github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66 h1:gahG81ztKpmu8AzQQuocfiUkkmBQaUOdKnMtD8v2vho=
 github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66/go.mod h1:m9w7ro3oG0m4FwI6eg3ZVEopf5Np/LsP/DBQRXYyhbI=
-github.com/projectkeas/sdks-service v0.0.0-20220528190218-6c1b51458032 h1:RQJzRr8JEbRCD95R+mtP2CNPQ6WexTHKnyIBZ8J1J/Q=
-github.com/projectkeas/sdks-service v0.0.0-20220528190218-6c1b51458032/go.mod h1:CqNfUmk92bjd0NViIWaTG+pjwGEhtVhObiJzz8Iz5BM=
-github.com/projectkeas/sdks-service v0.0.0-20220528210408-efd32eaed414 h1:3PQBJB4vQ6rYN44A2afqTNbmFiNZtpT/rI0JTFC19EM=
-github.com/projectkeas/sdks-service v0.0.0-20220528210408-efd32eaed414/go.mod h1:CqNfUmk92bjd0NViIWaTG+pjwGEhtVhObiJzz8Iz5BM=
 github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1 h1:kqj66Ejw37AGCpQ272KyEi3swdZTVaQ+zMADGW5jg4M=
 github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1/go.mod h1:CqNfUmk92bjd0NViIWaTG+pjwGEhtVhObiJzz8Iz5BM=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=

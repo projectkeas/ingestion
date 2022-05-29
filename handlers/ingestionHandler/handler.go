@@ -3,6 +3,7 @@ package ingestionHandler
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/mitchellh/mapstructure"
 	"github.com/projectkeas/ingestion/sdk"
 	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
@@ -13,8 +14,51 @@ import (
 )
 
 var Validator = validator.New()
+var metadataSchema *jsonSchema.Schema
 
 func New(server *server.Server) func(context *fiber.Ctx) error {
+	schema := `{
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"source": {
+				"type": "string",
+				"pattern": "^[A-z\\-]{3,63}$"
+			},
+			"type": {
+				"type": "string",
+				"pattern": "^[A-z\\-]{3,63}$"
+			},
+			"subType": {
+				"type": "string",
+				"pattern": "^[A-z\\-]{3,63}$"
+			},
+			"eventTime": {
+				"type": "string",
+				"format": "date-time"
+			},
+			"eventUUID": {
+				"type": "string",
+				"format": "date-time"
+			},
+			"version": {
+				"type": "string",
+				"pattern": "^([0-9]{1,4}){1}\\.([0-9]{1,4}){1}\\.([0-9]{1,4}){1}$"
+			}
+		},
+		"required": [
+			"source",
+			"eventType",
+			"version"
+		]
+	}`
+
+	temp, err := jsonSchema.CompileString("schema.json", schema)
+	if err != nil {
+		panic(err)
+	}
+	metadataSchema = temp
+
 	return func(context *fiber.Ctx) error {
 		context.Accepts("application/json")
 		errorResult := map[string]interface{}{
@@ -23,11 +67,45 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 
 		// Ensure that we can parse the event
 		event := new(sdk.EventEnvelope)
-		err := context.BodyParser(&event)
+		requestBody := map[string]interface{}{}
+		err := context.BodyParser(&requestBody)
 		if err != nil {
 			log.Logger.Error("Unable to parse request body", zap.Error(err))
 			errorResult["reason"] = "request-body"
 			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+		}
+
+		// Validate that both sections are there in the request body
+		meta, found := requestBody["metadata"]
+		if !found {
+			errorResult["message"] = "The metadata section is missing from the request body"
+			errorResult["reason"] = "metadata-missing"
+			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+		}
+
+		payload, found := requestBody["payload"]
+		if !found {
+			errorResult["message"] = "The payload section is missing from the request body"
+			errorResult["reason"] = "payload-missing"
+			return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+		}
+		mapstructure.Decode(payload, &event.Payload)
+		mapstructure.Decode(meta, &event.Metadata)
+
+		// Validate the metadata section of the payload
+		err = metadataSchema.Validate(meta)
+		if err != nil {
+			validationError, castSuccess := err.(*jsonSchema.ValidationError)
+			if castSuccess {
+				errorResult["message"] = "The specified payload does not match event schema"
+				errorResult["reason"] = "metadata"
+				errorResult["errors"] = validationError.Causes
+				return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+			} else {
+				log.Logger.Error("Unable to validate schema", zap.Error(err))
+				errorResult["reason"] = "metadata-failure"
+				return context.Status(fiber.StatusBadRequest).JSON(errorResult)
+			}
 		}
 
 		// Validate that the request matches the defined schema

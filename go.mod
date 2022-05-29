@@ -5,8 +5,11 @@ go 1.18
 require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.34.0
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/projectkeas/crds v0.0.0-20220528202028-ad7b07065f66
 	github.com/projectkeas/sdks-service v0.0.0-20220528212721-eda88a739ca1
+	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
+	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.1
 	k8s.io/client-go v0.24.1
 )
@@ -41,7 +44,6 @@ require (
 	github.com/open-policy-agent/opa v0.40.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.37.0 // indirect
@@ -51,7 +53,6 @@ require (
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401 // indirect

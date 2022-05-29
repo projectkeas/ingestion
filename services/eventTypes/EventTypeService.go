@@ -28,7 +28,7 @@ type eventTypesExecutionService struct {
 
 func (service eventTypesExecutionService) Validate(event sdk.EventEnvelope) error {
 
-	key := formatStorageKey(event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.EventVersion)
+	key := formatStorageKey(event.Metadata.EventType, event.Metadata.EventSubType, event.Metadata.Version)
 	vt, found := service.eventTypes[key]
 
 	if found {
