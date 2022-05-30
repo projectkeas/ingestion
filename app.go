@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/projectkeas/sdks-service/server"
 
+	"github.com/projectkeas/ingestion/handlers/authenticationHandler"
 	"github.com/projectkeas/ingestion/handlers/ingestionHandler"
 	"github.com/projectkeas/ingestion/services/eventPublisher"
 	"github.com/projectkeas/ingestion/services/eventTypes"
@@ -19,7 +20,7 @@ func main() {
 	app.WithSecret("ingestion-secret")
 
 	app.ConfigureHandlers(func(f *fiber.App, server *server.Server) {
-		f.Post("/ingest", ingestionHandler.New(server))
+		f.Post("/ingest", authenticationHandler.New(server), ingestionHandler.New(server))
 	})
 
 	server := app.Build()
