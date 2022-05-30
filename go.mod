@@ -6,8 +6,9 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/projectkeas/crds v0.0.0-20220529174911-53fa80e2428d
-	github.com/projectkeas/sdks-service v0.0.0-20220529202830-06ceacb59f96
+	github.com/nats-io/nats.go v1.16.0
+	github.com/projectkeas/crds v0.0.0-20220530171539-3e9535bdf663
+	github.com/projectkeas/sdks-service v0.0.0-20220530170937-0f384f18aa03
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.1
@@ -41,6 +42,9 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/nats-io/nats-server/v2 v2.8.4 // indirect
+	github.com/nats-io/nkeys v0.3.0 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/open-policy-agent/opa v0.40.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect

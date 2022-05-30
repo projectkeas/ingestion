@@ -46,9 +46,7 @@ During the course of development, you may receive one or more of the reason code
 |payload-missing|The system could not get the property `payload` from the request|Ensure that the field is present and lowercased|
 |metadata|The supplied metadata did not match the schema `metadata`|Ensure that the `metadata` section is formatted according to [this schema](https://github.com/projectkeas/ingestion/blob/e1c07265b7799cebf47f5c296f4f149b6b5372fa/handlers/ingestionHandler/handler.go#L20-L54)|
 |metadata-failure|There was a server side error deserializing the `metadata` section|N/A|
-|event-type|There was a server side error getting the event validation service|N/A|
 |event-validation|The system failed to successfully validate the request payload against the one stored in the system|Ensure that the event sent to the system matches the schema registered|
 |event-validation-failure|There was a server side error |N/A|
-|ingestion-service|There was a server side error getting the ingestion policy service|N/A|
 |ingestion-service-failure|There was a server side error whilst processing one or more ingestion policies|Ensure all ingestion policies registered are valid [Rego policies](https://www.openpolicyagent.org/docs/latest/policy-language/)|
 |ingestion-service-rejected|One or more policies evaluated the ingestion policy as disallowing the request|Adjust the ingestion policy if deemed that the policy is incorrect otherwise - N/A|
