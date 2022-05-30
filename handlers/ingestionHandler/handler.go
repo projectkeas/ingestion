@@ -1,10 +1,13 @@
 package ingestionHandler
 
 import (
+	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/mitchellh/mapstructure"
 	"github.com/projectkeas/ingestion/sdk"
+	"github.com/projectkeas/ingestion/services/eventPublisher"
 	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
 	log "github.com/projectkeas/sdks-service/logger"
@@ -48,7 +51,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 		},
 		"required": [
 			"source",
-			"eventType",
+			"type",
 			"version"
 		]
 	}`
@@ -58,6 +61,19 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 		panic(err)
 	}
 	metadataSchema = temp
+
+	// TODO : Get metadata service
+	// TODO : Get event validation service
+
+	nc, err := server.GetService(eventPublisher.SERVICE_NAME)
+	client, ok := (*nc).(eventPublisher.EventPublisherService)
+	if err != nil || !ok {
+		if err != nil {
+			panic(err)
+		} else {
+			panic(fmt.Errorf("unable to convert the publisher service to the correct type"))
+		}
+	}
 
 	return func(context *fiber.Ctx) error {
 		context.Accepts("application/json")
@@ -115,7 +131,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 			errorResult["reason"] = "event-type"
 			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
 		}
-		eventTypesEngine := eventTypesService.(eventTypes.EventTypeService)
+		eventTypesEngine := (*eventTypesService).(eventTypes.EventTypeService)
 		err = eventTypesEngine.Validate(*event)
 		if err != nil {
 			validationError, castSuccess := err.(*jsonSchema.ValidationError)
@@ -138,7 +154,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 			errorResult["reason"] = "ingestion-service"
 			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
 		}
-		ingestionPolicyEngine := ingestionService.(ingestionPolicies.IngestionPolicyService)
+		ingestionPolicyEngine := (*ingestionService).(ingestionPolicies.IngestionPolicyService)
 		ingestionDecision, err := ingestionPolicyEngine.GetDecision(*event)
 		if err != nil {
 			log.Logger.Error("Unable to make ingestion decision", zap.Error(err))
@@ -149,8 +165,12 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 
 		// Forward the event through to the NATS cluster
 		if ingestionDecision.Allow {
-			// TODO :: implement
-			context.Status(fiber.StatusNoContent)
+			if !client.Publish(event.Metadata, context.Body()) {
+				errorResult["reason"] = "publish"
+				return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
+			}
+
+			context.Status(fiber.StatusAccepted)
 			return nil
 		}
 

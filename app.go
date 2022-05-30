@@ -5,6 +5,7 @@ import (
 	"github.com/projectkeas/sdks-service/server"
 
 	"github.com/projectkeas/ingestion/handlers/ingestionHandler"
+	"github.com/projectkeas/ingestion/services/eventPublisher"
 	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
 )
@@ -14,8 +15,8 @@ func main() {
 
 	app.WithEnvironmentVariableConfiguration("KEAS_")
 
-	//app.WithConfigMap("config-1")
-	//app.WithSecret("secret-1")
+	app.WithConfigMap("ingestion-cm")
+	app.WithSecret("ingestion-secret")
 
 	app.ConfigureHandlers(func(f *fiber.App, server *server.Server) {
 		f.Post("/ingest", ingestionHandler.New(server))
@@ -25,6 +26,7 @@ func main() {
 
 	server.RegisterService(ingestionPolicies.SERVICE_NAME, ingestionPolicies.New())
 	server.RegisterService(eventTypes.SERVICE_NAME, eventTypes.New())
+	server.RegisterService(eventPublisher.SERVICE_NAME, eventPublisher.New(server.GetConfiguration()))
 
 	server.Run()
 }
