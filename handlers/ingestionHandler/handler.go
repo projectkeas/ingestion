@@ -1,8 +1,6 @@
 package ingestionHandler
 
 import (
-	"fmt"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/mitchellh/mapstructure"
@@ -10,6 +8,7 @@ import (
 	"github.com/projectkeas/ingestion/services/eventPublisher"
 	"github.com/projectkeas/ingestion/services/eventTypes"
 	"github.com/projectkeas/ingestion/services/ingestionPolicies"
+	"github.com/projectkeas/ingestion/services/metadataVerification"
 	log "github.com/projectkeas/sdks-service/logger"
 	"github.com/projectkeas/sdks-service/server"
 	jsonSchema "github.com/santhosh-tekuri/jsonschema/v5"
@@ -17,63 +16,32 @@ import (
 )
 
 var Validator = validator.New()
-var metadataSchema *jsonSchema.Schema
 
 func New(server *server.Server) func(context *fiber.Ctx) error {
-	schema := `{
-		"type": "object",
-		"additionalProperties": false,
-		"properties": {
-			"source": {
-				"type": "string",
-				"pattern": "^[A-z\\-]{3,63}$"
-			},
-			"type": {
-				"type": "string",
-				"pattern": "^[A-z\\-]{3,63}$"
-			},
-			"subType": {
-				"type": "string",
-				"pattern": "^[A-z\\-]{3,63}$"
-			},
-			"eventTime": {
-				"type": "string",
-				"format": "date-time"
-			},
-			"eventUUID": {
-				"type": "string",
-				"format": "date-time"
-			},
-			"version": {
-				"type": "string",
-				"pattern": "^([0-9]{1,4}){1}\\.([0-9]{1,4}){1}\\.([0-9]{1,4}){1}$"
-			}
-		},
-		"required": [
-			"source",
-			"type",
-			"version"
-		]
-	}`
 
-	temp, err := jsonSchema.CompileString("schema.json", schema)
+	// Setup the services, starting with metadata validation
+	metadataValidation := metadataVerification.New()
+
+	// payload validation setup
+	eventTypesService, err := server.GetService(eventTypes.SERVICE_NAME)
 	if err != nil {
 		panic(err)
 	}
-	metadataSchema = temp
+	eventValidation := (*eventTypesService).(eventTypes.EventTypeService)
 
-	// TODO : Get metadata service
-	// TODO : Get event validation service
-
-	nc, err := server.GetService(eventPublisher.SERVICE_NAME)
-	client, ok := (*nc).(eventPublisher.EventPublisherService)
-	if err != nil || !ok {
-		if err != nil {
-			panic(err)
-		} else {
-			panic(fmt.Errorf("unable to convert the publisher service to the correct type"))
-		}
+	// ingestion engine setup
+	ingestionService, err := server.GetService(ingestionPolicies.SERVICE_NAME)
+	if err != nil {
+		panic(err)
 	}
+	ingestionPolicyEngine := (*ingestionService).(ingestionPolicies.IngestionPolicyService)
+
+	// publisher setup
+	nc, err := server.GetService(eventPublisher.SERVICE_NAME)
+	if err != nil {
+		panic(err)
+	}
+	client := (*nc).(eventPublisher.EventPublisherService)
 
 	return func(context *fiber.Ctx) error {
 		context.Accepts("application/json")
@@ -109,7 +77,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 		mapstructure.Decode(meta, &event.Metadata)
 
 		// Validate the metadata section of the payload
-		err = metadataSchema.Validate(meta)
+		err = metadataValidation.Validate(meta)
 		if err != nil {
 			validationError, castSuccess := err.(*jsonSchema.ValidationError)
 			if castSuccess {
@@ -125,14 +93,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 		}
 
 		// Validate that the request matches the defined schema
-		eventTypesService, err := server.GetService(eventTypes.SERVICE_NAME)
-		if err != nil {
-			log.Logger.Error("Unable to get the eventTypes service from the request context", zap.Error(err))
-			errorResult["reason"] = "event-type"
-			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
-		}
-		eventTypesEngine := (*eventTypesService).(eventTypes.EventTypeService)
-		err = eventTypesEngine.Validate(*event)
+		err = eventValidation.Validate(*event)
 		if err != nil {
 			validationError, castSuccess := err.(*jsonSchema.ValidationError)
 			if castSuccess {
@@ -148,13 +109,6 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 		}
 
 		// Ensure that we are allowed to ingest the event
-		ingestionService, err := server.GetService(ingestionPolicies.SERVICE_NAME)
-		if err != nil {
-			log.Logger.Error("Unable to get the ingestion service from the request context", zap.Error(err))
-			errorResult["reason"] = "ingestion-service"
-			return context.Status(fiber.StatusInternalServerError).JSON(errorResult)
-		}
-		ingestionPolicyEngine := (*ingestionService).(ingestionPolicies.IngestionPolicyService)
 		ingestionDecision, err := ingestionPolicyEngine.GetDecision(*event)
 		if err != nil {
 			log.Logger.Error("Unable to make ingestion decision", zap.Error(err))
