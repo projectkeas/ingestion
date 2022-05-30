@@ -17,7 +17,7 @@ func main() {
 	app.WithEnvironmentVariableConfiguration("KEAS_")
 
 	app.WithConfigMap("ingestion-cm")
-	app.WithSecret("ingestion-secret")
+	app.WithRequiredSecret("ingestion-secret")
 
 	app.ConfigureHandlers(func(f *fiber.App, server *server.Server) {
 		f.Post("/ingest", authenticationHandler.New(server), ingestionHandler.New(server))

@@ -15,6 +15,8 @@ The ingestion API watches both resource types for any changes and reflects them 
 |`/_system/health`|GET|The liveness health check endpoint||
 |`/_system/health/ready`|GET|The readiness health check endpoint||
 
+The `/_system/*` endpoints are anonymous but all other endpoints have authentication in the format `Authorization: ApiKey <value from secret ingestion-secret>`
+
 ### Ingest Payload
 
 ```json
@@ -35,7 +37,7 @@ The ingestion API watches both resource types for any changes and reflects them 
 
 Note: Any other metadata fields than those listed above will be rejected by the system
 
-## Error Response
+### Error Response
 
 During the course of development, you may receive one or more of the reason codes listed below:
 
@@ -50,3 +52,33 @@ During the course of development, you may receive one or more of the reason code
 |event-validation-failure|There was a server side error |N/A|
 |ingestion-service-failure|There was a server side error whilst processing one or more ingestion policies|Ensure all ingestion policies registered are valid [Rego policies](https://www.openpolicyagent.org/docs/latest/policy-language/)|
 |ingestion-service-rejected|One or more policies evaluated the ingestion policy as disallowing the request|Adjust the ingestion policy if deemed that the policy is incorrect otherwise - N/A|
+
+## Configuration
+
+The ingestion system looks for two required configuration objects within a Kubernetes cluster:
+
+- ConfigMap: `ingestion-cm`
+- Secret: `ingestion-secret`
+
+The readiness check will fail if the secret `ingestion-secret` is missing as the server requires a token for the NATS cluster and a ApiKey to use for authenticating users.
+
+Example configurations:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingestion-cm
+data:
+  log.level: debug
+  nats.address: '10.0.0.31'
+  nats.port: '4222'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ingestion-secret
+stringData:
+  auth.token: Testing!
+  nats.token: Testing!
+```
