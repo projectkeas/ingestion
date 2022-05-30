@@ -11,6 +11,7 @@ type validatableEventType struct {
 	SubTypes []string
 	Sources  []string
 	Schema   jsonSchema.Schema
+	version  string
 }
 
 func (vt validatableEventType) Validate(event sdk.EventEnvelope) error {

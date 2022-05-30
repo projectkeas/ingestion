@@ -61,13 +61,14 @@ func onNewEventType(service *eventTypesExecutionService) func(eventTypeInterface
 	return func(policyInterface interface{}) {
 		eventType, successfulCast := policyInterface.(*types.EventType)
 		if successfulCast {
-			addOrUpdateEventType(service, eventType)
-			log.Logger.Info("added new event type", zap.Any("eventType", map[string]string{
-				"name":      eventType.Name,
-				"namespace": eventType.Namespace,
-				"eventType": eventType.Spec.EventType,
-				"version":   eventType.Spec.Version,
-			}))
+			if addOrUpdateEventType(service, eventType) {
+				log.Logger.Info("added new event type", zap.Any("eventType", map[string]string{
+					"name":      eventType.Name,
+					"namespace": eventType.Namespace,
+					"eventType": eventType.Spec.EventType,
+					"version":   eventType.Spec.Version,
+				}))
+			}
 		} else {
 			log.Logger.Error("could not cast event type")
 		}
@@ -78,52 +79,37 @@ func onUpdatedEventType(service *eventTypesExecutionService) func(oldEventTypeIn
 	return func(oldEventType interface{}, newEventType interface{}) {
 		eventType, successfulCast := newEventType.(*types.EventType)
 		if successfulCast {
-			addOrUpdateEventType(service, eventType)
-			log.Logger.Info("updated event type", zap.Any("eventType", map[string]string{
-				"name":      eventType.Name,
-				"namespace": eventType.Namespace,
-				"eventType": eventType.Spec.EventType,
-				"version":   eventType.Spec.Version,
-			}))
+			if addOrUpdateEventType(service, eventType) {
+				log.Logger.Info("updated event type", zap.Any("eventType", map[string]string{
+					"name":      eventType.Name,
+					"namespace": eventType.Namespace,
+					"eventType": eventType.Spec.EventType,
+					"version":   eventType.Spec.Version,
+				}))
+			}
 		} else {
 			log.Logger.Error("could not cast event type")
 		}
 	}
 }
 
-func addOrUpdateEventType(service *eventTypesExecutionService, eventType *types.EventType) {
+func addOrUpdateEventType(service *eventTypesExecutionService, eventType *types.EventType) bool {
 
 	if service.eventTypes == nil {
 		service.eventTypes = map[string]validatableEventType{}
 	}
 
-	schema, err := jsonSchema.CompileString("schema.json", eventType.Spec.Schema)
-	if err != nil {
-		log.Logger.Error("Cannot parse json schema. Not adding schema to collection", zap.Any("eventType", map[string]string{
-			"name":      eventType.Name,
-			"namespace": eventType.Namespace,
-			"eventType": eventType.Spec.EventType,
-			"version":   eventType.Spec.Version,
-		}), zap.Error(err))
-		return
-	}
+	updated := false
 
 	if len(eventType.Spec.SubTypes) > 0 {
 		for _, subType := range eventType.Spec.SubTypes {
-			key := formatStorageKey(eventType.Spec.EventType, subType, eventType.Spec.Version)
-			service.eventTypes[key] = validatableEventType{
-				Schema:   *schema,
-				SubTypes: eventType.Spec.SubTypes,
-				Sources:  eventType.Spec.Sources,
+			if checkAndUpdate(eventType.Spec.EventType, subType, eventType.Spec.Version, service, eventType) {
+				updated = true
 			}
 		}
+		return updated
 	} else {
-		key := formatStorageKey(eventType.Spec.EventType, "*", eventType.Spec.Version)
-		service.eventTypes[key] = validatableEventType{
-			Schema:   *schema,
-			SubTypes: eventType.Spec.SubTypes,
-			Sources:  eventType.Spec.Sources,
-		}
+		return checkAndUpdate(eventType.Spec.EventType, "*", eventType.Spec.Version, service, eventType)
 	}
 }
 
@@ -154,4 +140,34 @@ func onDeletedEventType(service *eventTypesExecutionService) func(eventTypeInter
 
 func formatStorageKey(eventType string, SubType string, eventVersion string) string {
 	return fmt.Sprintf("%s|%s|%s", eventType, SubType, eventVersion)
+}
+
+func checkAndUpdate(eventType string, SubType string, eventVersion string, service *eventTypesExecutionService, eventTypeSchema *types.EventType) bool {
+
+	key := formatStorageKey(eventType, SubType, eventVersion)
+
+	schema, err := jsonSchema.CompileString("schema.json", eventTypeSchema.Spec.Schema)
+	if err != nil {
+		log.Logger.Error("Cannot parse json schema. Not adding schema to collection", zap.Any("eventType", map[string]string{
+			"name":      eventTypeSchema.Name,
+			"namespace": eventTypeSchema.Namespace,
+			"eventType": eventTypeSchema.Spec.EventType,
+			"version":   eventTypeSchema.Spec.Version,
+		}), zap.Error(err))
+		return false
+	}
+
+	et, found := service.eventTypes[key]
+	if (found) && et.version == eventTypeSchema.ResourceVersion {
+		return false
+	}
+
+	service.eventTypes[key] = validatableEventType{
+		Schema:   *schema,
+		SubTypes: eventTypeSchema.Spec.SubTypes,
+		Sources:  eventTypeSchema.Spec.Sources,
+		version:  eventTypeSchema.ResourceVersion,
+	}
+
+	return true
 }
