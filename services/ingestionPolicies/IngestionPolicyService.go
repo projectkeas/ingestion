@@ -23,7 +23,8 @@ type IngestionPolicyService interface {
 }
 
 type ingestionExecutionService struct {
-	opa *opa.OPAService
+	opa      *opa.OPAService
+	versions map[string]string
 }
 
 func (ies *ingestionExecutionService) GetDecision(event sdk.EventEnvelope) (IngestionPolicyDecision, error) {
@@ -65,54 +66,63 @@ func (ies *ingestionExecutionService) GetDecision(event sdk.EventEnvelope) (Inge
 func New() IngestionPolicyService {
 
 	opa := &opa.OPAService{}
+	svc := &ingestionExecutionService{
+		opa:      opa,
+		versions: map[string]string{},
+	}
 
 	informer := services.GetInformer()
 	ingestionPoliciesFactory := informer.Keas().V1alpha1().IngestionPolicies()
 	ingestionPoliciesFactory.Informer().AddEventHandlerWithResyncPeriod(cache.ResourceEventHandlerFuncs{
-		AddFunc:    onNewIngestionPolicy(opa),
-		UpdateFunc: onUpdatedIngestionPolicy(opa),
-		DeleteFunc: onDeletedIngestionPolicy(opa),
+		AddFunc:    onNewIngestionPolicy(svc),
+		UpdateFunc: onUpdatedIngestionPolicy(svc),
+		DeleteFunc: onDeletedIngestionPolicy(svc),
 	}, 2*time.Minute)
 
 	informer.Start(wait.NeverStop)
 	informer.WaitForCacheSync(wait.NeverStop)
 
-	return &ingestionExecutionService{
-		opa: opa,
-	}
+	return svc
 }
 
-func onNewIngestionPolicy(opa *opa.OPAService) func(policyInterface interface{}) {
+func onNewIngestionPolicy(svc *ingestionExecutionService) func(policyInterface interface{}) {
 	return func(policyInterface interface{}) {
 		ingestionPolicy, successfulCast := policyInterface.(*types.IngestionPolicy)
 		if successfulCast {
-			addOrUpdateIngestionPolicy(opa, ingestionPolicy)
-			log.Logger.Info("added new ingestion policy.", zap.Any("ingestionPolicy", map[string]string{
-				"name":      ingestionPolicy.Name,
-				"namespace": ingestionPolicy.Namespace,
-			}))
+			if addOrUpdateIngestionPolicy(svc, ingestionPolicy) {
+				log.Logger.Info("added new ingestion policy.", zap.Any("ingestionPolicy", map[string]string{
+					"name":      ingestionPolicy.Name,
+					"namespace": ingestionPolicy.Namespace,
+				}))
+			}
 		} else {
 			log.Logger.Error("could not cast ingestion policy")
 		}
 	}
 }
 
-func onUpdatedIngestionPolicy(opa *opa.OPAService) func(oldPolicyInterface interface{}, newPolicyInterface interface{}) {
+func onUpdatedIngestionPolicy(svc *ingestionExecutionService) func(oldPolicyInterface interface{}, newPolicyInterface interface{}) {
 	return func(oldPolicyInterface interface{}, newPolicyInterface interface{}) {
 		ingestionPolicy, successfulCast := newPolicyInterface.(*types.IngestionPolicy)
 		if successfulCast {
-			addOrUpdateIngestionPolicy(opa, ingestionPolicy)
-			log.Logger.Info("updated ingestion policy.", zap.Any("ingestionPolicy", map[string]string{
-				"name":      ingestionPolicy.Name,
-				"namespace": ingestionPolicy.Namespace,
-			}))
+			if addOrUpdateIngestionPolicy(svc, ingestionPolicy) {
+				log.Logger.Info("updated ingestion policy.", zap.Any("ingestionPolicy", map[string]string{
+					"name":      ingestionPolicy.Name,
+					"namespace": ingestionPolicy.Namespace,
+				}))
+			}
 		} else {
 			log.Logger.Error("could not cast ingestion policy")
 		}
 	}
 }
 
-func addOrUpdateIngestionPolicy(opa *opa.OPAService, ingestionPolicy *types.IngestionPolicy) {
+func addOrUpdateIngestionPolicy(svc *ingestionExecutionService, ingestionPolicy *types.IngestionPolicy) bool {
+	version, found := svc.versions[ingestionPolicy.Name]
+	if found && version == ingestionPolicy.ResourceVersion {
+		return false
+	}
+
 	allow := false
 	ttl := -1
 
@@ -122,18 +132,21 @@ func addOrUpdateIngestionPolicy(opa *opa.OPAService, ingestionPolicy *types.Inge
 		ttl = ingestionPolicy.Spec.Defaults.TTL
 	}
 
-	opa.AddOrUpdatePolicy("keas.ingestion", ingestionPolicy.Name, map[string]interface{}{
+	svc.opa.AddOrUpdatePolicy("keas.ingestion", ingestionPolicy.Name, map[string]interface{}{
 		"allow": allow,
 		"ttl":   ttl,
 	}, ingestionPolicy.Spec.Policy)
+	svc.versions[ingestionPolicy.Name] = ingestionPolicy.ResourceVersion
+	return true
 }
 
-func onDeletedIngestionPolicy(opa *opa.OPAService) func(policyInterface interface{}) {
+func onDeletedIngestionPolicy(svc *ingestionExecutionService) func(policyInterface interface{}) {
 	return func(policyInterface interface{}) {
 		ingestionPolicy, successfulCast := policyInterface.(*types.IngestionPolicy)
 		if successfulCast {
-			opa.RemovePolicy(ingestionPolicy.Namespace, ingestionPolicy.Name)
-			log.Logger.Info("deleted ingestion policy. the policy is no longer in effect", zap.Any("ingestionPolicy", map[string]string{
+			svc.opa.RemovePolicy(ingestionPolicy.Namespace, ingestionPolicy.Name)
+			delete(svc.versions, ingestionPolicy.Name)
+			log.Logger.Info("Deleted ingestion policy. the policy is no longer in effect", zap.Any("ingestionPolicy", map[string]string{
 				"name":      ingestionPolicy.Name,
 				"namespace": ingestionPolicy.Namespace,
 			}))
