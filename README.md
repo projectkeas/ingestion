@@ -79,6 +79,6 @@ kind: Secret
 metadata:
   name: ingestion-secret
 stringData:
-  auth.token: Testing!
+  ingestion.auth.token: Testing!
   nats.token: Testing!
 ```

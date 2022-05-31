@@ -12,7 +12,7 @@ func New(server *server.Server) func(context *fiber.Ctx) error {
 
 	return func(context *fiber.Ctx) error {
 
-		token := server.GetConfiguration().GetStringValueOrDefault("auth.token", "")
+		token := server.GetConfiguration().GetStringValueOrDefault("ingestion.auth.token", "")
 		if token == "" {
 			log.Logger.Warn("No token has been set for authentication")
 			return context.SendStatus(401)
