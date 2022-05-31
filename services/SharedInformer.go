@@ -30,7 +30,7 @@ func GetInformer() keasClient.SharedInformerFactory {
 		return informer
 	}
 
-	config, err := configuration.GetKubernetesConfig()
+	config, namespace, err := configuration.GetKubernetesConfig()
 	if err != nil {
 		panic(err)
 	}
@@ -40,6 +40,6 @@ func GetInformer() keasClient.SharedInformerFactory {
 		panic(err)
 	}
 
-	informer = keasClient.NewSharedInformerFactory(client, 5*time.Minute)
+	informer = keasClient.NewSharedInformerFactoryWithOptions(client, 5*time.Minute, keasClient.WithNamespace(namespace))
 	return informer
 }

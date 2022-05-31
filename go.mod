@@ -7,8 +7,8 @@ require (
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nats-io/nats.go v1.16.0
-	github.com/projectkeas/crds v0.0.0-20220530171539-3e9535bdf663
-	github.com/projectkeas/sdks-service v0.0.0-20220530185037-dde15d726c80
+	github.com/projectkeas/crds v0.0.0-20220531211245-332bb5aef083
+	github.com/projectkeas/sdks-service v0.0.0-20220531192121-767a20477bd1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.1
@@ -58,7 +58,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
+	golang.org/x/net v0.0.0-20220531201128-c960675eff93 // indirect
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
