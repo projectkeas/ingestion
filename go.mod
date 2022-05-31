@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nats-io/nats.go v1.16.0
-	github.com/projectkeas/crds v0.0.0-20220531225555-77bda630e9d9
+	github.com/projectkeas/crds v0.0.0-20220531231002-c4221eb712a3
 	github.com/projectkeas/sdks-service v0.0.0-20220531224621-88295975a895
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0

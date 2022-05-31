@@ -810,6 +810,8 @@ github.com/pquerna/cachecontrol v0.0.0-20171018203845-0dec1b30a021/go.mod h1:prY
 github.com/prashantv/gostub v1.1.0/go.mod h1:A5zLQHz7ieHGG7is6LLXLz7I8+3LZzsrV0P1IAHhP5U=
 github.com/projectkeas/crds v0.0.0-20220531225555-77bda630e9d9 h1:q2ylDy2PBWkCH0O8GW/knc2DIB8xIIviEIvfDXFN8Eg=
 github.com/projectkeas/crds v0.0.0-20220531225555-77bda630e9d9/go.mod h1:4add+O793bKdTXu4tV9IwNtpdk48Z4VGUBjJo7uW38s=
+github.com/projectkeas/crds v0.0.0-20220531231002-c4221eb712a3 h1:WXp42ocRGDBdOsSYvJKdG4s6z4X+ZpmqeoI6/dcl/gs=
+github.com/projectkeas/crds v0.0.0-20220531231002-c4221eb712a3/go.mod h1:4add+O793bKdTXu4tV9IwNtpdk48Z4VGUBjJo7uW38s=
 github.com/projectkeas/sdks-service v0.0.0-20220531224621-88295975a895 h1:s7046kbPK4j7yUS4vx9qCEdrd2oE1/yhXovrDdQaVjo=
 github.com/projectkeas/sdks-service v0.0.0-20220531224621-88295975a895/go.mod h1:IgZRpt0GN4I2c0sLy7mbXM6+PYUcZNEeX8xS7bFJoPQ=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
