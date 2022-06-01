@@ -12,7 +12,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.1
-	k8s.io/client-go v0.24.1
+	k8s.io/client-go v1.5.2
 )
 
 require (
