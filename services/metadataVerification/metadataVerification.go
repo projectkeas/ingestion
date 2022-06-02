@@ -25,8 +25,7 @@ var schema string = `{
 			"format": "date-time"
 		},
 		"eventUUID": {
-			"type": "string",
-			"format": "date-time"
+			"type": "string"
 		},
 		"version": {
 			"type": "string",
