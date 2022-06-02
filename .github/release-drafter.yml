@@ -23,27 +23,27 @@ autolabeler:
   - label: 'type: breaking'
     title:
       - '/major:/i'
-      - '/major(/i'
+      - '/major\(/i'
   - label: 'type: feature'
     title:
       - '/feat:/i'
-      - '/feat(/i'
+      - '/feat\(/i'
   - label: 'type: bug'
     title:
       - '/bug:/i'
-      - '/bug(/i'
+      - '/bug\(/i'
       - '/bugfix:/i'
-      - '/bugfix(/i'
+      - '/bugfix\(/i'
       - '/fix:/i'
-      - '/fix(/i'
+      - '/fix\(/i'
   - label: 'type: maintenance'
     title:
       - '/maint:/i'
-      - '/maint(/i'
+      - '/maint\(/i'
   - label: 'docs: maintenance'
     title:
       - '/docs:/i'
-      - '/docs(/i'
+      - '/docs\(/i'
 
 version-resolver:
   major:
