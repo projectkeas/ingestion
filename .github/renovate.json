@@ -21,7 +21,8 @@
               "patch",
               "pin",
               "digest"
-          ]
+          ],
+          "ignoreDeps": ["k8s.io/client-go"]
       }
   ],
   "semanticCommits": "enabled",
