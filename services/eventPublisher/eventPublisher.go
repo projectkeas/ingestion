@@ -1,13 +1,16 @@
 package eventPublisher
 
 import (
+	"context"
 	"fmt"
+	"strings"
 
-	"github.com/nats-io/nats.go"
-	"github.com/projectkeas/ingestion/sdk"
 	"github.com/projectkeas/sdks-service/configuration"
 	log "github.com/projectkeas/sdks-service/logger"
 	"go.uber.org/zap"
+
+	cejsm "github.com/cloudevents/sdk-go/protocol/nats_jetstream/v2"
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
 const (
@@ -15,66 +18,86 @@ const (
 )
 
 type EventPublisherService interface {
-	Publish(metadata sdk.EventMetadata, data []byte) bool
+	Publish(event cloudevents.Event) bool
 }
 
 type eventPublisherExecutionService struct {
-	natsClient *nats.Conn
+	natsClientCache map[string]cloudevents.Client
+	config          *configuration.ConfigurationRoot
 }
 
 func New(config *configuration.ConfigurationRoot) EventPublisherService {
 	service := eventPublisherExecutionService{}
 	config.RegisterChangeNotificationHandler(func(c configuration.ConfigurationRoot) {
-		existingClient := service.natsClient
-		address := c.GetStringValueOrDefault("nats.address", "nats-cluster.svc.cluster.local")
-		port := c.GetStringValueOrDefault("nats.port", "4222")
-		uri := fmt.Sprintf("%s:%s", address, port)
+		// TODO :: Lock with mutex
 
-		token := c.GetStringValueOrDefault("nats.token", "")
-
-		nc, err := nats.Connect(uri, nats.Name("ingestion"), nats.Token(token))
-		if err == nil {
-			service.natsClient = nc
-			if existingClient != nil {
-				if log.Logger != nil {
-					log.Logger.Info("Connection to the NATS cluster has been refreshed as the connection details have changed")
-				}
-				existingClient.Close()
-			}
-		} else {
-			if log.Logger != nil {
-				log.Logger.Error("Unable to establish connection to NATS cluster", zap.Error(err))
-			}
-		}
+		service.config = &c
+		service.natsClientCache = map[string]cloudevents.Client{}
 	})
 
 	return &service
 }
 
-func (ep *eventPublisherExecutionService) Publish(metadata sdk.EventMetadata, data []byte) bool {
-
-	if ep.natsClient == nil {
-		if log.Logger != nil {
-			log.Logger.Error("No connection to NATS cluster available")
-		}
-		return false
-	}
-
-	err := ep.natsClient.Publish(fmt.Sprintf("%s.%s", metadata.Source, metadata.Type), data)
-
+func (ep *eventPublisherExecutionService) Publish(event cloudevents.Event) bool {
+	err := event.Validate()
 	if err != nil {
-		if log.Logger != nil {
-			log.Logger.Error("Unable to publish to NATS cluster", zap.Error(err))
-		}
+		log.Logger.Error("Unable to validate outbound CloudEvent", zap.Error(err))
 		return false
 	}
 
-	return true
+	// TODO :: Lock rest of method with mutex
+	if ep.natsClientCache == nil {
+		ep.natsClientCache = map[string]cloudevents.Client{}
+	}
+
+	streamName, subject := getStreamConfig(event.Type())
+	client, found := ep.natsClientCache[subject]
+	if !found {
+		address := ep.config.GetStringValueOrDefault("nats.address", "nats-cluster.svc.cluster.local")
+		port := ep.config.GetStringValueOrDefault("nats.port", "4222")
+		uri := fmt.Sprintf("%s:%s", address, port)
+		sender, err := cejsm.NewSender(uri, streamName, subject, cejsm.NatsOptions(), nil)
+		if err != nil {
+			log.Logger.Error("Unable to create new JetStream sender", zap.Error(err))
+			return false
+		}
+
+		client, err = cloudevents.NewClient(sender, cloudevents.WithTimeNow(), cloudevents.WithUUIDs())
+		if err != nil {
+			log.Logger.Error("Unable to create new CloudEvents Client", zap.Error(err))
+			return false
+		}
+
+		ep.natsClientCache[subject] = client
+	}
+
+	result := client.Send(context.Background(), event)
+	if cloudevents.IsUndelivered(result) {
+		log.Logger.Error("Unable to publish to JetStream Cluster", zap.Error(result), zap.Any("nats", map[string]interface{}{
+			"stream":       streamName,
+			"subject":      subject,
+			"uuid":         event.ID(),
+			"acknowledged": cloudevents.IsACK(result),
+		}))
+	} else {
+		log.Logger.Debug("Sent event", zap.Any("nats", map[string]interface{}{
+			"stream":       streamName,
+			"subject":      subject,
+			"uuid":         event.ID(),
+			"acknowledged": cloudevents.IsACK(result),
+		}))
+	}
+
+	return result == nil
 }
 
-func (ep *eventPublisherExecutionService) Dispose() {
-	if ep.natsClient != nil {
-		ep.natsClient.Close()
-		ep.natsClient = nil
+func getStreamConfig(input string) (string, string) {
+	result := strings.Split(input, ".")
+	length := len(result)
+
+	if length > 1 {
+		return result[1], strings.Join(result[1:], ".")
 	}
+
+	return input, input
 }
