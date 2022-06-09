@@ -1,11 +1,11 @@
 package ingestionPolicies
 
 import (
-	"encoding/json"
 	"time"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	spec "github.com/cloudevents/sdk-go/v2/binding/spec"
 	types "github.com/projectkeas/crds/pkg/apis/keas.io/v1alpha1"
-	"github.com/projectkeas/ingestion/sdk"
 	"github.com/projectkeas/ingestion/services"
 	log "github.com/projectkeas/sdks-service/logger"
 	"github.com/projectkeas/sdks-service/opa"
@@ -18,8 +18,12 @@ const (
 	SERVICE_NAME string = "IngestionPolicies"
 )
 
+var (
+	specs = spec.New().Version("1.0")
+)
+
 type IngestionPolicyService interface {
-	GetDecision(event sdk.EventEnvelope) (IngestionPolicyDecision, error)
+	GetDecision(event cloudevents.Event, data map[string]interface{}) (IngestionPolicyDecision, error)
 }
 
 type ingestionExecutionService struct {
@@ -27,10 +31,9 @@ type ingestionExecutionService struct {
 	versions map[string]string
 }
 
-func (ies *ingestionExecutionService) GetDecision(event sdk.EventEnvelope) (IngestionPolicyDecision, error) {
+func (ies *ingestionExecutionService) GetDecision(event cloudevents.Event, data map[string]interface{}) (IngestionPolicyDecision, error) {
 	result := &IngestionPolicyDecision{
 		Allow: true,
-		TTL:   -1,
 	}
 
 	keys := ies.opa.GetPolicyKeys()
@@ -38,25 +41,31 @@ func (ies *ingestionExecutionService) GetDecision(event sdk.EventEnvelope) (Inge
 		return *result, nil
 	}
 
+	subject := map[string]interface{}{
+		"metadata": map[string]interface{}{
+			specs.AttributeFromKind(spec.DataContentType).Name(): event.DataContentType(),
+			specs.AttributeFromKind(spec.DataSchema).Name():      event.DataSchema(),
+			specs.AttributeFromKind(spec.ID).Name():              event.ID(),
+			specs.AttributeFromKind(spec.Source).Name():          event.Source(),
+			specs.AttributeFromKind(spec.SpecVersion).Name():     event.SpecVersion(),
+			specs.AttributeFromKind(spec.Subject).Name():         event.Subject(),
+			specs.AttributeFromKind(spec.Time).Name():            event.Time(),
+			specs.AttributeFromKind(spec.Type).Name():            event.Type(),
+		},
+		"payload": data,
+	}
+
 	for _, key := range keys {
-		decision, err := ies.opa.EvaluatePolicy(key, event)
+		decision, err := ies.opa.EvaluatePolicy(key, subject)
 
 		if err != nil {
 			return IngestionPolicyDecision{}, err
 		}
 
 		allow := decision[0].Bindings["allow"].(bool)
-		ttl, err := decision[0].Bindings["ttl"].(json.Number).Int64()
-		if err != nil {
-			return IngestionPolicyDecision{}, err
-		}
-
 		if !allow {
 			result.Allow = false
-		}
-
-		if ttl > result.TTL && ttl != 0 {
-			result.TTL = ttl
+			return *result, nil
 		}
 	}
 
@@ -124,17 +133,10 @@ func addOrUpdateIngestionPolicy(svc *ingestionExecutionService, ingestionPolicy 
 	}
 
 	allow := false
-	ttl := -1
-
 	allow = ingestionPolicy.Spec.Defaults.Allow
-
-	if ingestionPolicy.Spec.Defaults.TTL != 0 {
-		ttl = ingestionPolicy.Spec.Defaults.TTL
-	}
 
 	svc.opa.AddOrUpdatePolicy("keas.ingestion", ingestionPolicy.Name, map[string]interface{}{
 		"allow": allow,
-		"ttl":   ttl,
 	}, ingestionPolicy.Spec.Policy)
 	svc.versions[ingestionPolicy.Name] = ingestionPolicy.ResourceVersion
 	return true

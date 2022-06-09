@@ -4,15 +4,22 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/projectkeas/sdks-service/configuration"
 	log "github.com/projectkeas/sdks-service/logger"
 	"github.com/projectkeas/sdks-service/server"
 )
 
+var token string = ""
+
 func New(server *server.Server) func(context *fiber.Ctx) error {
+
+	config := server.GetConfiguration()
+	config.RegisterChangeNotificationHandler(func(newConfig configuration.ConfigurationRoot) {
+		token = newConfig.GetStringValueOrDefault("ingestion.auth.token", "")
+	})
 
 	return func(context *fiber.Ctx) error {
 
-		token := server.GetConfiguration().GetStringValueOrDefault("ingestion.auth.token", "")
 		if token == "" {
 			log.Logger.Warn("No token has been set for authentication")
 			return context.SendStatus(401)
