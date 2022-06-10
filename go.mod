@@ -3,8 +3,8 @@ module github.com/projectkeas/ingestion
 go 1.18
 
 require (
-	github.com/cloudevents/sdk-go/protocol/nats_jetstream/v2 v2.10.0
-	github.com/cloudevents/sdk-go/v2 v2.10.0
+	github.com/cloudevents/sdk-go/protocol/nats_jetstream/v2 v2.10.1
+	github.com/cloudevents/sdk-go/v2 v2.10.1
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/projectkeas/crds v0.0.0-20220609121923-72812a65fb90
