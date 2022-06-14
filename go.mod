@@ -6,9 +6,9 @@ require (
 	github.com/cloudevents/sdk-go/protocol/nats_jetstream/v2 v2.10.1
 	github.com/cloudevents/sdk-go/v2 v2.10.1
 	github.com/go-playground/validator/v10 v10.11.0
-	github.com/gofiber/fiber/v2 v2.34.0
-	github.com/projectkeas/crds v0.0.0-20220609121923-72812a65fb90
-	github.com/projectkeas/sdks-service v0.0.0-20220602224332-e79c47898f50
+	github.com/gofiber/fiber/v2 v2.34.1
+	github.com/projectkeas/crds v0.0.0-20220614111517-89eba2988dc2
+	github.com/projectkeas/sdks-service v0.0.0-20220614110741-277d3538f4d4
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.1
@@ -54,7 +54,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.37.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.4.4 // indirect
+	github.com/vektah/gqlparser/v2 v2.4.5 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
@@ -63,10 +63,10 @@ require (
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
 	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb // indirect
-	golang.org/x/sys v0.0.0-20220608164250-635b8c9b7f68 // indirect
+	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
+	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
