@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/nats-io/nats.go v1.16.0
-	github.com/projectkeas/crds v0.0.0-20220614111517-89eba2988dc2
+	github.com/projectkeas/crds v0.0.0-20220617090952-800f1fe5415a
 	github.com/projectkeas/sdks-service v0.0.0-20220615220235-6f4764317198
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
