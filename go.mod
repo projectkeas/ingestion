@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/nats-io/nats.go v1.16.0
 	github.com/projectkeas/crds v0.0.0-20220617090952-800f1fe5415a
-	github.com/projectkeas/sdks-service v0.0.0-20220615220235-6f4764317198
+	github.com/projectkeas/sdks-service v0.0.0-20220617133508-d482b4431396
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.2
@@ -72,7 +72,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.24.1 // indirect
+	k8s.io/api v0.24.2 // indirect
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220614142933-1062c7ade5f8 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
