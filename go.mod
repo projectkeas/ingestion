@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/nats-io/nats.go v1.16.0
 	github.com/projectkeas/crds v0.0.0-20220617090952-800f1fe5415a
-	github.com/projectkeas/sdks-service v0.0.0-20220617133508-d482b4431396
+	github.com/projectkeas/sdks-service v0.0.0-20220704165653-859f3cee6189
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.2
@@ -47,7 +47,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/open-policy-agent/opa v0.41.0 // indirect
+	github.com/open-policy-agent/opa v0.42.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
