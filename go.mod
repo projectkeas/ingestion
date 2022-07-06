@@ -6,10 +6,10 @@ require (
 	github.com/cloudevents/sdk-go/protocol/nats_jetstream/v2 v2.10.1
 	github.com/cloudevents/sdk-go/v2 v2.10.1
 	github.com/go-playground/validator/v10 v10.11.0
-	github.com/gofiber/fiber/v2 v2.34.1
+	github.com/gofiber/fiber/v2 v2.35.0
 	github.com/nats-io/nats.go v1.16.0
 	github.com/projectkeas/crds v0.0.0-20220617090952-800f1fe5415a
-	github.com/projectkeas/sdks-service v0.0.0-20220704165653-859f3cee6189
+	github.com/projectkeas/sdks-service v0.0.0-20220706141559-d95fcf85f6cf
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
 	k8s.io/apimachinery v0.24.2
@@ -52,7 +52,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.37.0 // indirect
+	github.com/valyala/fasthttp v1.38.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.5 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
