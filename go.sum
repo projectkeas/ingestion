@@ -809,6 +809,8 @@ github.com/open-policy-agent/opa v0.42.0 h1:CTJ240+A+sZEYSuLDYiT5l8Q3lcQf2eZc53j
 github.com/open-policy-agent/opa v0.42.0/go.mod h1:MrmoTi/BsKWT58kXlVayBb+rYVeaMwuBm3nYAN3923s=
 github.com/open-policy-agent/opa v0.42.1 h1:5R5hVrxgLFK3lxPAcel7iWz3TzbumAZj8qunOIx6fhk=
 github.com/open-policy-agent/opa v0.42.1/go.mod h1:MrmoTi/BsKWT58kXlVayBb+rYVeaMwuBm3nYAN3923s=
+github.com/open-policy-agent/opa v0.42.2 h1:qocVAKyjrqMjCqsU02S/gHyLr4AQQ9xMtuV1kKnnyhM=
+github.com/open-policy-agent/opa v0.42.2/go.mod h1:MrmoTi/BsKWT58kXlVayBb+rYVeaMwuBm3nYAN3923s=
 github.com/opencontainers/go-digest v0.0.0-20170106003457-a6d0ee40d420/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v0.0.0-20180430190053-c9281466c8b2/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
@@ -875,6 +877,8 @@ github.com/projectkeas/sdks-service v0.0.0-20220706141559-d95fcf85f6cf h1:F0FyJ7
 github.com/projectkeas/sdks-service v0.0.0-20220706141559-d95fcf85f6cf/go.mod h1:5lMcjZrqTTWkR/3VocGO69izwkHQ+5UVSchWm74sImw=
 github.com/projectkeas/sdks-service v0.0.0-20220708135651-17e74f6b1d35 h1:iJoSehIsS2Qq7qW4A5q2DeVZmw3Gb0Xa0B8ScJnnvYE=
 github.com/projectkeas/sdks-service v0.0.0-20220708135651-17e74f6b1d35/go.mod h1:6wqQ0Dq9se7eBl7e5k4TG/STT6FK1ZJIKb4R96tQaaY=
+github.com/projectkeas/sdks-service v0.0.0-20220713123658-602cdc51e835 h1:/n/WB2yZtNtry64YLRW9RUsNLLmjotDPp1fm1m+hhqo=
+github.com/projectkeas/sdks-service v0.0.0-20220713123658-602cdc51e835/go.mod h1:eUqfh8XbNj/FkbI3PkQ+Yr+4T96NLPevwdi8IITccBo=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
