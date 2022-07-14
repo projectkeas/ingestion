@@ -12,7 +12,7 @@ require (
 	github.com/projectkeas/sdks-service v0.0.0-20220713123658-602cdc51e835
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	go.uber.org/zap v1.21.0
-	k8s.io/apimachinery v0.24.2
+	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.1
 )
 
