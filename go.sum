@@ -879,6 +879,8 @@ github.com/projectkeas/sdks-service v0.0.0-20220708135651-17e74f6b1d35 h1:iJoSeh
 github.com/projectkeas/sdks-service v0.0.0-20220708135651-17e74f6b1d35/go.mod h1:6wqQ0Dq9se7eBl7e5k4TG/STT6FK1ZJIKb4R96tQaaY=
 github.com/projectkeas/sdks-service v0.0.0-20220713123658-602cdc51e835 h1:/n/WB2yZtNtry64YLRW9RUsNLLmjotDPp1fm1m+hhqo=
 github.com/projectkeas/sdks-service v0.0.0-20220713123658-602cdc51e835/go.mod h1:eUqfh8XbNj/FkbI3PkQ+Yr+4T96NLPevwdi8IITccBo=
+github.com/projectkeas/sdks-service v0.0.0-20220714054439-540372bd28e5 h1:pNSpVyTnO9WAwb57Y02HNpUIcZHMmAq2WM3kX+LMgeE=
+github.com/projectkeas/sdks-service v0.0.0-20220714054439-540372bd28e5/go.mod h1:S8k5/Sg+qCx1xltlv0ON2rXvwhEh2Sa+a2m045lDFTk=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
@@ -1682,6 +1684,8 @@ k8s.io/api v0.24.1 h1:BjCMRDcyEYz03joa3K1+rbshwh1Ay6oB53+iUx2H8UY=
 k8s.io/api v0.24.1/go.mod h1:JhoOvNiLXKTPQ60zh2g0ewpA+bnEYf5q44Flhquh4vQ=
 k8s.io/api v0.24.2 h1:g518dPU/L7VRLxWfcadQn2OnsiGWVOadTLpdnqgY2OI=
 k8s.io/api v0.24.2/go.mod h1:AHqbSkTm6YrQ0ObxjO3Pmp/ubFF/KuM7jU+3khoBsOg=
+k8s.io/api v0.24.3 h1:tt55QEmKd6L2k5DP6G/ZzdMQKvG5ro4H4teClqm0sTY=
+k8s.io/api v0.24.3/go.mod h1:elGR/XSZrS7z7cSZPzVWaycpJuGIw57j9b95/1PdJNI=
 k8s.io/apimachinery v0.20.1/go.mod h1:WlLqWAHZGg07AeltaI0MV5uk1Omp8xaN0JGLY6gkRpU=
 k8s.io/apimachinery v0.20.4/go.mod h1:WlLqWAHZGg07AeltaI0MV5uk1Omp8xaN0JGLY6gkRpU=
 k8s.io/apimachinery v0.20.6/go.mod h1:ejZXtW1Ra6V1O5H8xPBGz+T3+4gfkTCeExAHKU57MAc=
